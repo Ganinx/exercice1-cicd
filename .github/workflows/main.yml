@@ -1,25 +1,28 @@
 name: Deploy to GitHub Pages
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+      build:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v2
+        - name: Build
+          run: echo Building...
 
-    steps:
-    - uses: actions/checkout@v2
+      test:
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+        - uses: actions/checkout@v2
+        - name: Test
+          run: echo Testing...
 
-    - name: Build and deploy
-      run: |
-        npm install
-        npm run build
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-        git add -f build
-        git commit -m 'Deploy'
-        git push origin `git subtree split --prefix build main`:refs/heads/gh-pages --force
+      deploy:
+        runs-on: ubuntu-latest
+        needs: test
+        steps:
+        - uses: actions/checkout@v2
+        - name: Deploy
+          run: echo Deploying...
 
